@@ -566,6 +566,9 @@ class GatewayConnection(object):
                 self.close()
                 raise Py4JError("Answer from Java side is empty")
             return answer
+        except Py4JError:
+            # Do not wrap Py4JError
+            raise
         except Exception:
             #print_exc()
             logger.exception('Error while sending or receiving.')
