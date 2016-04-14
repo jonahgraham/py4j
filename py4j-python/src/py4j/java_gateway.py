@@ -96,9 +96,15 @@ def find_jar_path():
     """
     paths = []
     jar_file = "py4j{0}.jar".format(__version__)
+    maven_jar_file = "py4j-{0}.jar".format(__version__)
     paths.append(jar_file)
+    # ant
     paths.append(os.path.join(os.path.dirname(
         os.path.realpath(__file__)), "../../../py4j-java/" + jar_file))
+    # maven
+    paths.append(os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        "../../../py4j-java/target" + maven_jar_file))
     paths.append(os.path.join(os.path.dirname(
         os.path.realpath(__file__)), "../share/py4j/" + jar_file))
     paths.append("../../../current-release/" + jar_file)
@@ -503,7 +509,7 @@ class GatewayParameters(object):
          the JVM, it shuts down itself and raises an exception.
 
         :param ssl_context: if not None, SSL connections will be made using
-        this SSLContext
+         this SSLContext
         """
         self.address = address
         self.port = port
@@ -1893,7 +1899,7 @@ class CallbackConnection(Thread):
                 method = smart_decode(input.readline())[:-1]
                 params = self._get_params(input)
                 return_value = getattr(self.pool[obj_id], method)(*params)
-                return_message = "y" +\
+                return_message = proto.RETURN_MESSAGE + proto.SUCCESS +\
                     get_command_part(return_value, self.pool)
             except Exception:
                 logger.exception("There was an exception while executing the "
