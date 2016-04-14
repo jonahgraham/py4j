@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: py4j-python
+Bundle-SymbolicName: py4j-python
+Bundle-Version: 0.10.0.qualifier
