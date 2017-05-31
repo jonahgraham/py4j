@@ -7,6 +7,15 @@ class HelloState(object):
         self.calls.append((int_value, string_value))
         return "Said hello to {0}".format(string_value)
 
+    def sendObject(self, o1, o2):
+        # make a cycle between the objects,
+        # this ensure the objects are not collected as
+        # soon as the functions return and require
+        # a full gc to be cleared
+        o1.cycle = o2
+        o2.cycle = o1
+        return ""
+
     class Java:
         implements = ["py4j.examples.IHello"]
 

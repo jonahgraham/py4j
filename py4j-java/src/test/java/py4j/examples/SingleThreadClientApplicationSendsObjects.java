@@ -29,10 +29,26 @@
  *****************************************************************************/
 package py4j.examples;
 
-public interface IHello {
-	public String sayHello();
+import java.util.Random;
 
-	public String sayHello(int i, String s);
+import py4j.ClientServer;
+import py4j.GatewayServer;
 
-	public String sendObject(Object o1, Object o2);
+public class SingleThreadClientApplicationSendsObjects {
+
+	public static void main(String[] args) {
+		GatewayServer.turnAllLoggingOn();
+		ClientServer clientServer = new ClientServer(null);
+		IHello hello = (IHello) clientServer.getPythonServerEntryPoint(new Class[] { IHello.class });
+		try {
+			hello.sayHello();
+			hello.sayHello(2, "Hello World2");
+
+			while (true) {
+				hello.sendObject(new Object(), new Object());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

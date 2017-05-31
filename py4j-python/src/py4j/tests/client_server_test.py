@@ -36,11 +36,19 @@ def start_java_clientserver_example_server():
         "java", "-Xmx512m", "-cp", PY4J_JAVA_PATH,
         "py4j.examples.SingleThreadClientApplication"])
 
+def start_java_clientserver_send_objects_example_server():
+    subprocess.call([
+        "java", "-Xmx512m", "-cp", PY4J_JAVA_PATH,
+        "py4j.examples.SingleThreadClientApplicationSendsObjects"])
+
 
 def start_clientserver_example_app_process(start_java_client=False,
-                                           start_short_timeout=False):
+                                           start_short_timeout=False,
+                                           send_objects_forever=False):
     # XXX DO NOT FORGET TO KILL THE PROCESS IF THE TEST DOES NOT SUCCEED
-    if not start_java_client and not start_short_timeout:
+    if send_objects_forever:
+        p = Process(target=start_java_clientserver_send_objects_example_server)
+    elif not start_java_client and not start_short_timeout:
         p = Process(target=start_clientserver_example_server)
     elif start_short_timeout:
         p = Process(target=start_short_timeout_clientserver_example_server)
@@ -54,9 +62,11 @@ def start_clientserver_example_app_process(start_java_client=False,
 
 @contextmanager
 def clientserver_example_app_process(
-        start_java_client=False, start_short_timeout=False):
+        start_java_client=False, start_short_timeout=False,
+        send_objects_forever=False):
     p = start_clientserver_example_app_process(
-        start_java_client, start_short_timeout)
+        start_java_client, start_short_timeout,
+        send_objects_forever)
     try:
         yield p
     finally:
@@ -231,6 +241,24 @@ class RetryTest(unittest.TestCase):
                 self.fail("Callbackserver did not retry.")
             finally:
                 client_server.shutdown()
+
+
+class GarbageCollectionTest(unittest.TestCase):
+
+    def testSendObjectsForever(self):
+        import logging
+        logger = logging.getLogger("py4j")
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(logging.StreamHandler())
+
+        hello_state = HelloState()
+        client_server = ClientServer(
+            JavaParameters(), PythonParameters(), hello_state)
+
+        with clientserver_example_app_process(send_objects_forever=True) as p:
+            p.join()
+
+        self.fail("Program should never exit!")
 
 
 class IntegrationTest(unittest.TestCase):
