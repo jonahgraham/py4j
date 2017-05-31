@@ -252,8 +252,9 @@ class GarbageCollectionTest(unittest.TestCase):
         logger.addHandler(logging.StreamHandler())
 
         hello_state = HelloState()
+        enable_memory_management = True # setting this to False gets rid of the error
         client_server = ClientServer(
-            JavaParameters(), PythonParameters(), hello_state)
+            JavaParameters(enable_memory_management=enable_memory_management), PythonParameters(), hello_state)
 
         with clientserver_example_app_process(send_objects_forever=True) as p:
             p.join()
